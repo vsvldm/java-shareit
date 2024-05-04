@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
 import ru.practicum.shareit.exception.exception.ConflictException;
 import ru.practicum.shareit.exception.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -12,9 +11,9 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -52,9 +51,13 @@ public class UserServiceImpl implements UserService {
 
         log.info("update(): Searching and updating information in the database.");
         fields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(User.class, key);
-            field.setAccessible(true);
-            ReflectionUtils.setField(field, existingUser, value);
+            try {
+                Field field = User.class.getDeclaredField(key);
+                field.setAccessible(true);
+                field.set(existingUser, value);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                throw new ConflictException(String.format("Field %s not found or access to it is limited.", key));
+            }
         });
         User user = userRepository.update(existingUser);
 
@@ -76,10 +79,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> findAll() {
         log.info("UserService: Beginning of method execution findAll().");
-        List<UserDto> userDtos = new ArrayList<>();
 
         log.info("findAll(): Searching all users.");
-        userRepository.getAll().forEach(user -> userDtos.add(userMapper.toUserDto(user)));
+        List<UserDto> userDtos = userRepository.getAll().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
+
         log.info("findAll(): Search for all users successful completed.");
         return userDtos;
     }

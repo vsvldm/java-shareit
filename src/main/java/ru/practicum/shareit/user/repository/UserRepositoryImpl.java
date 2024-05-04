@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -8,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.exception.ConflictException;
 import ru.practicum.shareit.user.model.User;
 
 import java.sql.ResultSet;
@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
     private final NamedParameterJdbcOperations jdbcOperations;
@@ -49,12 +50,9 @@ public class UserRepositoryImpl implements UserRepository {
         String sql = "UPDATE USERS SET USER_NAME = :name," +
                 "USER_EMAIL = :email " +
                 "WHERE USER_ID = :id";
-        try {
+
             jdbcOperations.update(sql, params);
             return user;
-        } catch (Exception e) {
-            throw new ConflictException("User with such data already exists");
-        }
     }
 
     @Override
@@ -84,6 +82,7 @@ public class UserRepositoryImpl implements UserRepository {
         try {
             return Optional.ofNullable(jdbcOperations.queryForObject(sql, params, this::makeUser));
         } catch (DataAccessException e) {
+            log.info("UserRepository.getById(): User with id = {} not found", userId);
             return Optional.empty();
         }
     }

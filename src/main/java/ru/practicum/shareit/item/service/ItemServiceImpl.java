@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
+import ru.practicum.shareit.exception.exception.ConflictException;
 import ru.practicum.shareit.exception.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -12,9 +12,9 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -49,9 +49,13 @@ public class ItemServiceImpl implements ItemService {
         if (existingItem.getOwnerId() == userId) {
             log.info("update(): Searching and updating information in the database.");
             fields.forEach((key, value) -> {
-                Field field = ReflectionUtils.findField(Item.class, key);
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, existingItem, value);
+                try {
+                    Field field = Item.class.getDeclaredField(key);
+                    field.setAccessible(true);
+                    field.set(existingItem, value);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new ConflictException(String.format("Field %s not found or access to it is limited.", key));
+                }
             });
             Item item = itemRepository.update(existingItem);
 
@@ -84,10 +88,12 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: Beginning of method execution findByOwner()");
         log.info("findByOwner(): Checking the existence of a user with id = {}.", userId);
         userRepository.getById(userId).orElseThrow(() -> new NotFoundException("User not found."));
-        List<ItemDto> itemsByOwner = new ArrayList<>();
 
         log.info("findByOwner(): Searching items by owner.");
-        itemRepository.getItemsByOwner(userId).forEach(item -> itemsByOwner.add(itemMapper.toItemDto(item)));
+        List<ItemDto> itemsByOwner = itemRepository.getItemsByOwner(userId).stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
+
         log.info("findByOwner(): Search for items by owner successful completed.");
         return itemsByOwner;
     }
@@ -95,17 +101,18 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> search(long userId, String text) {
         log.info("ItemService: Beginning of method execution search()");
-
-        List<ItemDto> searchedItems = new ArrayList<>();
         log.info("search(): Checking the text parameter for emptiness.");
         if (text.isEmpty()) {
             log.info("search(): Parameter is empty.");
-            return searchedItems;
+            return List.of();
         }
 
         userRepository.getById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         log.info("search(): Searching items by text parameter.");
-        itemRepository.search(text).forEach(item -> searchedItems.add(itemMapper.toItemDto(item)));
+        List<ItemDto> searchedItems = itemRepository.search(text).stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
+
         log.info("search(): Search for items by text parameter completed successful.");
         return searchedItems;
     }

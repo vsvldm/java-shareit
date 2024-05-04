@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -16,6 +17,7 @@ import java.util.*;
 
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class ItemRepositoryImpl implements ItemRepository {
     private final NamedParameterJdbcOperations jdbcOperations;
@@ -69,6 +71,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         try {
             return Optional.ofNullable(jdbcOperations.queryForObject(sql, params, this::makeItem));
         } catch (DataAccessException e) {
+            log.info("ItemRepository.getById(): Item with id = {} not found", itemId);
             return Optional.empty();
         }
     }
