@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(long userId, Map<String, Object> fields) {
+    public UserDto update(long userId, UserDto userDto) {
         log.info("UserService: Beginning of method execution update().");
         log.info("update(): Checking the existence of a user with id = {}.", userId);
         User existingUser = userRepository.getById(userId).orElseThrow(
@@ -50,19 +50,16 @@ public class UserServiceImpl implements UserService {
         );
 
         log.info("update(): Searching and updating information in the database.");
-        fields.forEach((key, value) -> {
-            try {
-                Field field = User.class.getDeclaredField(key);
-                field.setAccessible(true);
-                field.set(existingUser, value);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new ConflictException(String.format("Field %s not found or access to it is limited.", key));
-            }
-        });
-        User user = userRepository.update(existingUser);
+        if (userDto.getName() != null) {
+            existingUser.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            existingUser.setEmail(userDto.getEmail());
+        }
+        User updatedUser = userRepository.update(existingUser);
 
-        log.info("update(): User with id = {} successfully updated in database.", user.getId());
-        return userMapper.toUserDto(user);
+        log.info("update(): User with id = {} successfully updated in database.", updatedUser.getId());
+        return userMapper.toUserDto(updatedUser);
     }
 
     @Override

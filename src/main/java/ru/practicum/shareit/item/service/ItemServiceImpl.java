@@ -38,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(long userId, long itemId, Map<String, Object> fields) {
+    public ItemDto update(long userId, long itemId, ItemDto itemDto) {
         log.info("ItemService: Beginning of method execution update().");
         log.info("update(): Checking the existence of an item with id = {}.", itemId);
         Item existingItem = itemRepository.getById(itemId).orElseThrow(
@@ -48,19 +48,19 @@ public class ItemServiceImpl implements ItemService {
         log.info("update(): Checking the existence of an item with id = {} for a user with id = {}.", existingItem.getId(), userId);
         if (existingItem.getOwnerId() == userId) {
             log.info("update(): Searching and updating information in the database.");
-            fields.forEach((key, value) -> {
-                try {
-                    Field field = Item.class.getDeclaredField(key);
-                    field.setAccessible(true);
-                    field.set(existingItem, value);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new ConflictException(String.format("Field %s not found or access to it is limited.", key));
-                }
-            });
-            Item item = itemRepository.update(existingItem);
+            if (itemDto.getName() != null) {
+                existingItem.setName(itemDto.getName());
+            }
+            if (itemDto.getDescription() != null) {
+                existingItem.setDescription(itemDto.getDescription());
+            }
+            if (itemDto.getAvailable() != null) {
+                existingItem.setAvailable(itemDto.getAvailable());
+            }
+            Item updatedItem = itemRepository.update(existingItem);
 
-            log.info("update(): Item with id = {} successfully updated in database.", item.getId());
-            return itemMapper.toItemDto(item);
+            log.info("update(): Item with id = {} successfully updated in database.", updatedItem.getId());
+            return itemMapper.toItemDto(updatedItem);
         } else {
             throw new NotFoundException(
                     String.format("User with id = %d did not create an item with id = %d not found.", userId, itemId)

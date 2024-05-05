@@ -82,7 +82,7 @@ public class UserRepositoryImpl implements UserRepository {
         try {
             return Optional.ofNullable(jdbcOperations.queryForObject(sql, params, this::makeUser));
         } catch (DataAccessException e) {
-            log.info("UserRepository.getById(): User with id = {} not found", userId);
+            log.error("UserRepository.getById(): User with id = {} not found", userId);
             return Optional.empty();
         }
     }

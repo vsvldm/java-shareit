@@ -8,7 +8,7 @@ import java.util.Map;
 public interface ItemService {
     ItemDto create(long userId, ItemDto itemDto);
 
-    ItemDto update(long userId, long itemId, Map<String, Object> fields);
+    ItemDto update(long userId, long itemId, ItemDto itemDto);
 
     ItemDto findById(long userId, long itemId);
 

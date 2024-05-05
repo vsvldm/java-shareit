@@ -71,7 +71,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         try {
             return Optional.ofNullable(jdbcOperations.queryForObject(sql, params, this::makeItem));
         } catch (DataAccessException e) {
-            log.info("ItemRepository.getById(): Item with id = {} not found", itemId);
+            log.error("ItemRepository.getById(): Item with id = {} not found", itemId);
             return Optional.empty();
         }
     }
