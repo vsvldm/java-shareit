@@ -25,7 +25,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(long userId, ItemDto itemDto) {
         log.info("ItemService: Beginning of method execution create().");
         log.info("create(): Checking the existence of a user with id = {} creating the item.", userId);
-        userRepository.getById(userId).orElseThrow(() -> new NotFoundException("User not found."));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
         log.info("crate(): Add the item to the database.");
         Item item = itemRepository.add(itemMapper.fromItemDto(userId, itemDto));
@@ -70,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: Beginning of method execution findById().");
 
         log.info("findById(): Checking the existence of a user with id = {}.", userId);
-        userRepository.getById(userId).orElseThrow(() -> new NotFoundException("User not found."));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
         log.info("findById(): Searching item with id = {}.", itemId);
         Item item = itemRepository.getById(itemId).orElseThrow(
@@ -84,7 +84,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> findByOwner(long userId) {
         log.info("ItemService: Beginning of method execution findByOwner()");
         log.info("findByOwner(): Checking the existence of a user with id = {}.", userId);
-        userRepository.getById(userId).orElseThrow(() -> new NotFoundException("User not found."));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
         log.info("findByOwner(): Searching items by owner.");
         List<ItemDto> itemsByOwner = itemRepository.getItemsByOwner(userId).stream()
@@ -104,7 +104,7 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
 
-        userRepository.getById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         log.info("search(): Searching items by text parameter.");
         List<ItemDto> searchedItems = itemRepository.search(text).stream()
                 .map(itemMapper::toItemDto)

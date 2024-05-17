@@ -1,3 +1,4 @@
+/*
 package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "VALUES (:name, :email)";
 
         jdbcOperations.update(sql, paramSource, keyHolder);
-        user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
     }
 
@@ -95,3 +96,4 @@ public class UserRepositoryImpl implements UserRepository {
                 .build();
     }
 }
+*/
