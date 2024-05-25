@@ -38,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
     public ReturnBookingDto create(Long userId, ReceivingBookingDto receivingBookingDto) {
         log.info("BookingService: Beginning of method execution create().");
         log.info("create(): Checking the start and end date of the booking.");
-        if(!receivingBookingDto.getStart().isBefore(receivingBookingDto.getEnd())) {
+        if (!receivingBookingDto.getStart().isBefore(receivingBookingDto.getEnd())) {
             log.error("create(): Start date must be before end date.");
             throw new BadRequestException("Start date must be before end date.");
         }
@@ -77,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException(String.format("Booking with id = %d not found.", bookingId)));
 
-        log.info("statusUpdate(): Checking if the user with id = {} is the owner for the item with id = {}.", userId, booking.getItem().getId() );
+        log.info("statusUpdate(): Checking if the user with id = {} is the owner for the item with id = {}.", userId, booking.getItem().getId());
         if (!booking.getItem().getOwner().equals(owner)) {
             log.error("statusUpdate(): The user with id = {} is not the owner of the item with id = {}.", userId, booking.getItem().getId());
             throw new NotFoundException(String.format("The user with id = %d is not the owner of the item with id = %d.", userId, booking.getItem().getId()));
@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         log.info("statusUpdate(): Change booking status.");
-        if(approved) {
+        if (approved) {
             log.info("statusUpdate(): The booking with id = {} is approved.", bookingId);
             booking.setStatus(BookingStatus.APPROVED);
         } else {
@@ -176,7 +176,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException(String.format("User with id = %d not found.", ownerId)));
 
         log.info("findAllByOwnerId(): Checking the existence of items by owner with id = {}.", ownerId);
-        if(itemRepository.findAllByOwner(owner).isEmpty()) {
+        if (itemRepository.findAllByOwner(owner).isEmpty()) {
             log.error("findAllByOwnerId(): User with id = {} does not own any of the existing items.", ownerId);
             throw new NotFoundException(String.format("User with id = %d does not own any of the existing items.", ownerId));
         }

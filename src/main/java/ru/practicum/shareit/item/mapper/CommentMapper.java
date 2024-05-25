@@ -16,6 +16,7 @@ public class CommentMapper {
                 .created(comment.getCreated())
                 .build();
     }
+
     public Comment toComment(CommentDto commentDto, User author, Item item) {
         return Comment.builder()
                 .id(commentDto.getId())
