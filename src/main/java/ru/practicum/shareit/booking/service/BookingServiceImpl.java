@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.exception.BadRequestException;
-import ru.practicum.shareit.exception.exception.BadRequestStateException;
 import ru.practicum.shareit.exception.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -164,7 +163,7 @@ public class BookingServiceImpl implements BookingService {
                         .collect(Collectors.toList());
             default:
                 log.error("findAllByBookerId(): Unknown state = {}.", state);
-                throw new BadRequestStateException(String.format("Unknown state: %s", state));
+                throw new BadRequestException(String.format("Unknown state: %s", state));
         }
     }
 
@@ -215,7 +214,7 @@ public class BookingServiceImpl implements BookingService {
                         .collect(Collectors.toList());
             default:
                 log.error("findAllByOwnerId(): Unknown state = {}.", state);
-                throw new BadRequestStateException(String.format("Unknown state: %s", state));
+                throw new BadRequestException(String.format("Unknown state: %s", state));
         }
     }
 

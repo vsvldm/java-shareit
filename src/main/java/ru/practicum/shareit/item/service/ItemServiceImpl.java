@@ -112,10 +112,8 @@ public class ItemServiceImpl implements ItemService {
         log.info("findById(): Searching last booking and next booking for item with id = {}.", itemId);
         LocalDateTime now = LocalDateTime.now();
 
-        Booking sortedEndBooking = bookingRepository.findTop1ByItemAndStartBeforeAndStatusOrderByEndDesc(item, now, BookingStatus.APPROVED).orElse(null);
-        Booking sortedStartBooking = bookingRepository.findTop1ByItemAndStartAfterAndStatusOrderByStartAsc(item, now, BookingStatus.APPROVED).orElse(null);
-        BookingDtoForItem lastBooking = (sortedEndBooking != null) ? bookingMapper.toBookingDtoForItem(sortedEndBooking) : null;
-        BookingDtoForItem nextBooking = (sortedStartBooking != null) ? bookingMapper.toBookingDtoForItem(sortedStartBooking) : null;
+        BookingDtoForItem lastBooking = getLastBooking(item, now);
+        BookingDtoForItem nextBooking = getNextBooking(item, now);
 
         log.info("findById(): Search for item with id ={} successful completed.", itemId);
         return itemMapper.toReturnItemDto(item, lastBooking, nextBooking, comments);
@@ -135,10 +133,8 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
 
         for (Item item : itemsByOwner) {
-            Booking sortedEndBooking = bookingRepository.findTop1ByItemAndStartBeforeAndStatusOrderByEndDesc(item, now, BookingStatus.APPROVED).orElse(null);
-            Booking sortedStartBooking = bookingRepository.findTop1ByItemAndStartAfterAndStatusOrderByStartAsc(item, now, BookingStatus.APPROVED).orElse(null);
-            BookingDtoForItem lastBooking = (sortedEndBooking != null) ? bookingMapper.toBookingDtoForItem(sortedEndBooking) : null;
-            BookingDtoForItem nextBooking = (sortedStartBooking != null) ? bookingMapper.toBookingDtoForItem(sortedStartBooking) : null;
+            BookingDtoForItem lastBooking = getLastBooking(item, now);
+            BookingDtoForItem nextBooking = getNextBooking(item, now);
 
             log.info("findByOwner(): Searching comments for item with id = {}.", item.getId());
             List<CommentDto> comments = commentRepository.findByItem(item).stream()
@@ -192,5 +188,15 @@ public class ItemServiceImpl implements ItemService {
         Comment newComment = commentRepository.save(commentMapper.toComment(commentDto, author, item));
         log.info("createComment(): The comment was successfully created for the item.");
         return commentMapper.toCommentDto(newComment);
+    }
+
+    private BookingDtoForItem getLastBooking(Item item, LocalDateTime now) {
+        Booking sortedEndBooking = bookingRepository.findTop1ByItemAndStartBeforeAndStatusOrderByEndDesc(item, now, BookingStatus.APPROVED).orElse(null);
+        return (sortedEndBooking != null) ? bookingMapper.toBookingDtoForItem(sortedEndBooking) : null;
+    }
+
+    private BookingDtoForItem getNextBooking(Item item, LocalDateTime now) {
+        Booking sortedStartBooking = bookingRepository.findTop1ByItemAndStartAfterAndStatusOrderByStartAsc(item, now, BookingStatus.APPROVED).orElse(null);
+        return (sortedStartBooking != null) ? bookingMapper.toBookingDtoForItem(sortedStartBooking) : null;
     }
 }
