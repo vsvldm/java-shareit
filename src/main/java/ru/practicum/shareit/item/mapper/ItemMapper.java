@@ -1,8 +1,15 @@
 package ru.practicum.shareit.item.mapper;
 
 import org.springframework.stereotype.Component;
+
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ReturnItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
+
+import java.util.List;
 
 @Component
 public class ItemMapper {
@@ -15,13 +22,26 @@ public class ItemMapper {
                 .build();
     }
 
-    public Item fromItemDto(long userId, ItemDto itemDto) {
+    public ReturnItemDto toReturnItemDto(Item item, BookingDtoForItem last, BookingDtoForItem next, List<CommentDto> comments) {
+        return ReturnItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.isAvailable())
+                .owner(item.getOwner())
+                .lastBooking(last)
+                .nextBooking(next)
+                .comments(comments)
+                .build();
+    }
+
+    public Item fromItemDto(User owner, ItemDto itemDto) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .ownerId(userId)
+                .owner(owner)
                 .build();
     }
 }
