@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.exception.ConflictException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -16,34 +16,28 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserDto create(UserDto userDto) {
         log.info("UserService: Beginning of method execution create().");
-        User user = userMapper.fromUserDto(userDto);
-
-        log.info("create(): Uniqueness check email = {}.", user.getEmail());
-        for (User existingUser : userRepository.getAll()) {
-            if (existingUser.getEmail().equals(user.getEmail())) {
-                throw new ConflictException(String.format("User with email = %s already exists", user.getEmail()));
-            }
-        }
-
         log.info("create(): Add the user to the database.");
-        User addedUser = userRepository.add(user);
+        User addedUser = userRepository.save(userMapper.fromUserDto(userDto));
 
         log.info("crate(): User with id = {} successfully added to database.", addedUser.getId());
         return userMapper.toUserDto(addedUser);
     }
 
     @Override
+    @Transactional
     public UserDto update(long userId, UserDto userDto) {
         log.info("UserService: Beginning of method execution update().");
         log.info("update(): Checking the existence of a user with id = {}.", userId);
-        User existingUser = userRepository.getById(userId).orElseThrow(
+        User existingUser = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format("User with id = %s not found", userId))
         );
 
@@ -54,7 +48,7 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null) {
             existingUser.setEmail(userDto.getEmail());
         }
-        User updatedUser = userRepository.update(existingUser);
+        User updatedUser = userRepository.save(existingUser);
 
         log.info("update(): User with id = {} successfully updated in database.", updatedUser.getId());
         return userMapper.toUserDto(updatedUser);
@@ -64,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public UserDto findById(long userId) {
         log.info("UserService: Beginning of method execution findById().");
         log.info("findById(): Searching user with id = {}.", userId);
-        User user = userRepository.getById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id = %d not foud", userId)));
 
         log.info("findById(): Search for user with id ={} successful completed.", userId);
@@ -76,7 +70,7 @@ public class UserServiceImpl implements UserService {
         log.info("UserService: Beginning of method execution findAll().");
 
         log.info("findAll(): Searching all users.");
-        List<UserDto> userDtos = userRepository.getAll().stream()
+        List<UserDto> userDtos = userRepository.findAll().stream()
                 .map(userMapper::toUserDto)
                 .collect(Collectors.toList());
 
@@ -85,9 +79,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteById(long userId) {
         log.info("UserService: Beginning of method execution deleteById().");
-        userRepository.remove(userId);
+        userRepository.deleteById(userId);
         log.info("deleteById(): User with id = {} successfully deleted.", userId);
     }
 }
