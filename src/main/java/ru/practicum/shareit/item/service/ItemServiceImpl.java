@@ -20,6 +20,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -37,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final CommentMapper commentMapper;
     private final ItemMapper itemMapper;
     private final BookingMapper bookingMapper;
@@ -46,13 +49,24 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(long userId, ItemDto itemDto) {
         log.info("ItemService: Beginning of method execution create().");
         log.info("create(): Checking the existence of a user with id = {} creating the item.", userId);
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+
+        log.info("create(): Checking the existence of a item request.");
+        ItemRequest itemRequest = (itemDto.getRequestId() != null) ? itemRequestRepository.findById(itemDto.getRequestId())
+                .orElseThrow(() -> new NotFoundException("Request not found.")) : null;
 
         log.info("crate(): Add the item to the database.");
-        Item item = itemRepository.save(itemMapper.fromItemDto(user, itemDto));
+        Item item = itemRepository.save(itemMapper.fromItemDto(user, itemDto, itemRequest));
 
         log.info("crate(): Item with id = {} successfully added to database.", item.getId());
-        return itemMapper.toItemDto(item);
+
+        itemDto.setId(item.getId());
+        if (itemRequest != null) {
+            log.info("create(): Add requestId param.");
+            itemDto.setRequestId(itemRequest.getId());
+        }
+        return itemDto;
     }
 
     @Override

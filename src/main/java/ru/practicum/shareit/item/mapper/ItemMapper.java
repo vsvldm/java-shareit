@@ -7,6 +7,8 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ReturnItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ResponseItemDto;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -35,13 +37,24 @@ public class ItemMapper {
                 .build();
     }
 
-    public Item fromItemDto(User owner, ItemDto itemDto) {
+    public Item fromItemDto(User owner, ItemDto itemDto, ItemRequest itemRequest) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .owner(owner)
+                .request(itemRequest)
+                .build();
+    }
+
+    public ResponseItemDto toResponseItemDto(Item item) {
+        return ResponseItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .requestId(item.getRequest().getId())
+                .available(item.isAvailable())
                 .build();
     }
 }
