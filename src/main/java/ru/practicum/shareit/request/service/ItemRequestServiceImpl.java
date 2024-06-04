@@ -77,7 +77,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             log.info("findAll(): size or from parameters are null.");
             return List.of();
         }
-        if (from < 0 ||size < 1) {
+        if (from < 0 || size < 1) {
             log.error("findAll(): Invalid request parameters.");
             throw new BadRequestException("Invalid request parameters.");
         }
@@ -89,7 +89,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<ItemRequestDto> requestDtos = new ArrayList<>();
 
         log.info("findAll(): Searching all requests.");
-        List<ItemRequest> requests = itemRequestRepository.findAll(PageRequest.of(from, size, Sort.sort(ItemRequest.class))). stream()
+        List<ItemRequest> requests = itemRequestRepository.findAll(PageRequest.of(from/size, size, Sort.by("created"))). stream()
                 .filter(request -> user.getId() != request.getRequestor().getId())
                 .collect(Collectors.toList());
 

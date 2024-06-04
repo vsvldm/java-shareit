@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
@@ -134,13 +135,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ReturnItemDto> findByOwner(long userId) {
+    public List<ReturnItemDto> findByOwner(long userId, Integer from, Integer size) {
         log.info("ItemService: Beginning of method execution findByOwner()");
         log.info("findByOwner(): Checking the existence of a user with id = {}.", userId);
         User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
         log.info("findByOwner(): Searching items by owner.");
-        List<Item> itemsByOwner = new ArrayList<>(itemRepository.findAllByOwner(owner));
+        List<Item> itemsByOwner = new ArrayList<>();
+
+        if(isPaginationEnabled(from, size)) {
+            itemsByOwner.addAll(itemRepository.findAllByOwner(owner, PageRequest.of(from/size, size)).getContent());
+        } else {
+            itemsByOwner.addAll(itemRepository.findAllByOwner(owner));
+        }
 
         log.info("findByOwner(): Searching last booking and next booking for items.");
         List<ReturnItemDto> itemsWithBookingDto = new ArrayList<>();
@@ -164,7 +171,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(long userId, String text) {
+    public List<ItemDto> search(long userId, String text, Integer from, Integer size) {
         log.info("ItemService: Beginning of method execution search()");
         log.info("search(): Checking the text parameter for emptiness.");
         if (text.isEmpty()) {
@@ -172,11 +179,21 @@ public class ItemServiceImpl implements ItemService {
             return List.of();
         }
 
-        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        List<ItemDto> searchedItems = new ArrayList<>();
+
         log.info("search(): Searching items by text parameter.");
-        List<ItemDto> searchedItems = itemRepository.findAllByNameOrDescription(text).stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
+        if(isPaginationEnabled(from, size)) {
+            searchedItems.addAll(itemRepository.findAllByNameOrDescription(text, PageRequest.of(from/size, size)).stream()
+                    .map(itemMapper::toItemDto)
+                    .collect(Collectors.toList()));
+        } else {
+            searchedItems.addAll(itemRepository.findAllByNameOrDescription(text).stream()
+                    .map(itemMapper::toItemDto)
+                    .collect(Collectors.toList()));
+        }
 
         log.info("search(): Search for items by text parameter completed successful.");
         return searchedItems;
@@ -212,5 +229,16 @@ public class ItemServiceImpl implements ItemService {
     private BookingDtoForItem getNextBooking(Item item, LocalDateTime now) {
         Booking sortedStartBooking = bookingRepository.findTop1ByItemAndStartAfterAndStatusOrderByStartAsc(item, now, BookingStatus.APPROVED).orElse(null);
         return (sortedStartBooking != null) ? bookingMapper.toBookingDtoForItem(sortedStartBooking) : null;
+    }
+
+    private Boolean isPaginationEnabled(Integer from, Integer size) {
+        if (from != null && size != null) {
+            if (from < 0 || size < 1) {
+                log.error("findAllByOwnerId(): Invalid request parameters.");
+                throw new BadRequestException("Invalid request parameters.");
+            }
+            return true;
+        }
+        return false;
     }
 }

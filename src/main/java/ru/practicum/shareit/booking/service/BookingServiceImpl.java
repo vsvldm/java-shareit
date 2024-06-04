@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.ReceivingBookingDto;
@@ -123,7 +124,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ReturnBookingDto> findAllByBookerId(Long bookerId, BookingState state) {
+    public List<ReturnBookingDto> findAllByBookerId(Long bookerId, BookingState state, Integer from, Integer size) {
         log.info("BookingService: Beginning of method execution findAllByBookerId().");
         log.info("findAllByBookerId(): Checking the existence of the booker with id = {}.", bookerId);
         User booker = userRepository.findById(bookerId)
@@ -133,34 +134,76 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case ALL:
                 log.info("findAllByBookerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerOrderByStartDesc(booker, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByBookerOrderByStartDesc(booker).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case CURRENT:
                 log.info("findAllByBookerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllCurrentByBooker(booker, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllCurrentByBooker(booker).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case PAST:
                 log.info("findAllByBookerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndEndBeforeOrderByStartDesc(booker, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByBookerAndEndBeforeOrderByStartDesc(booker, LocalDateTime.now()).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case FUTURE:
                 log.info("findAllByBookerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndStartAfterOrderByStartDesc(booker, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByBookerAndStartAfterOrderByStartDesc(booker, LocalDateTime.now()).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case WAITING:
                 log.info("findAllByBookerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.WAITING, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.WAITING).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case REJECTED:
                 log.info("findAllByBookerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.REJECTED, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.REJECTED).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             default:
                 log.error("findAllByBookerId(): Unknown state = {}.", state);
                 throw new BadRequestException(String.format("Unknown state: %s", state));
@@ -168,7 +211,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ReturnBookingDto> findAllByOwnerId(Long ownerId, BookingState state) {
+    public List<ReturnBookingDto> findAllByOwnerId(Long ownerId, BookingState state, Integer from, Integer size) {
         log.info("BookingService: Beginning of method execution findAllByOwnerId().");
         log.info("findAllByOwnerId(): Checking the existence of the owner with id = {}.", ownerId);
         User owner = userRepository.findById(ownerId)
@@ -183,40 +226,91 @@ public class BookingServiceImpl implements BookingService {
         log.info("findAllByOwnerId(): Searching bookings for user with id = {} by state = {}.", ownerId, state);
         switch (state) {
             case ALL:
-                log.info("findAllByOwnerId(): Searching successfully completed.");
+                log.info("findAllByBookerId(): Searching successfully completed.");
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerOrderByStartDesc(owner, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByItemOwnerOrderByStartDesc(owner).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case CURRENT:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllCurrentByOwner(owner, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllCurrentByOwner(owner).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case PAST:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(owner, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(owner, LocalDateTime.now()).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case FUTURE:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndStartAfterOrderByStartDesc(owner, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByItemOwnerAndStartAfterOrderByStartDesc(owner, LocalDateTime.now()).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case WAITING:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.WAITING, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.WAITING).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             case REJECTED:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
+                if(isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED, PageRequest.of(from/size, size)).stream()
+                            .map(bookingMapper::toReturnBookingDto)
+                            .collect(Collectors.toList());
+                }
+
                 return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED).stream()
                         .map(bookingMapper::toReturnBookingDto)
                         .collect(Collectors.toList());
+
             default:
                 log.error("findAllByOwnerId(): Unknown state = {}.", state);
                 throw new BadRequestException(String.format("Unknown state: %s", state));
         }
     }
 
-
+    private Boolean isPaginationEnabled(Integer from, Integer size) {
+        if (from != null && size != null) {
+            if (from < 0 || size < 1) {
+                log.error("findAllByOwnerId(): Invalid request parameters.");
+                throw new BadRequestException("Invalid request parameters.");
+            }
+            return true;
+        }
+        return false;
+    }
 }
