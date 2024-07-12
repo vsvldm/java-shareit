@@ -40,7 +40,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("ItemRequestService: Beginning of method execution create().");
         log.info("create(): Checking the existence of a user with id = {}.", userId);
         User requestor = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> {
+                    log.error("create(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         itemRequestDto.setCreated(LocalDateTime.now());
         log.info("crate(): Add the request to the database.");
@@ -55,7 +58,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("ItemRequestService: Beginning of method execution findByUser().");
         log.info("findByUser(): Checking the existence of a user with id = {}.", userId);
         User requestor = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> {
+                    log.error("findByUser(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         List<ItemRequestDto> requestDtos = new ArrayList<>();
 
@@ -74,7 +80,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("ItemRequestService: Beginning of method execution findAll().");
         log.info("findAll(): Validation of request parameters.");
         if (from == null || size == null) {
-            log.info("findAll(): size or from parameters are null.");
+            log.info("findAll(): Size or From parameters are null.");
             return List.of();
         }
         if (from < 0 || size < 1) {
@@ -84,7 +90,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         log.info("findAll(): Checking the existence of a user with id = {}.", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> {
+                    log.error("findAll(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         List<ItemRequestDto> requestDtos = new ArrayList<>();
 
@@ -106,11 +115,17 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("ItemRequestService: Beginning of method execution findById().");
         log.info("findById(): Checking the existence of a user with id = {}.", userId);
         userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> {
+                    log.error("findById(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         log.info("findById(): Searching request with id = {}.", requestId);
         ItemRequest itemRequest = itemRequestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Request not found."));
+                .orElseThrow(() -> {
+                    log.error("findById(): Request with id = {} not found", requestId);
+                    return new NotFoundException(String.format("Request with id = %d not found", requestId));
+                });
 
         log.info("findAll(): Searching response for item request.");
         ItemRequestDto itemRequestDto = getFullItemRequestDto(itemRequest);

@@ -91,6 +91,7 @@ public class ItemServiceImpl implements ItemService {
             if (itemDto.getAvailable() != null) {
                 existingItem.setAvailable(itemDto.getAvailable());
             }
+
             Item updatedItem = itemRepository.save(existingItem);
 
             log.info("update(): Item with id = {} successfully updated in database.", updatedItem.getId());
