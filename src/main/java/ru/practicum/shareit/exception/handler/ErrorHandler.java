@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.exception.exception.BadRequestException;
 import ru.practicum.shareit.exception.exception.ConflictException;
+import ru.practicum.shareit.exception.exception.ForbiddenException;
 import ru.practicum.shareit.exception.exception.NotFoundException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 
@@ -26,6 +27,12 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequestExceptions(final BadRequestException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
         return new ErrorResponse(e.getMessage());
     }
 }

@@ -1,22 +1,22 @@
 package ru.practicum.shareit.request.repository;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ItemRequestRepositoryTest {
     @Autowired
     private ItemRequestRepository requestRepository;
@@ -48,9 +48,8 @@ class ItemRequestRepositoryTest {
 
     @BeforeEach
     public void setUp() {
-        userRepository.save(requestor);
-        userRepository.save(notRequestor);
-        requestRepository.saveAll(Arrays.asList(request1, request2, request3));
+        userRepository.saveAll(List.of(requestor, notRequestor));
+        requestRepository.saveAll(List.of(request1, request2, request3));
     }
 
     @Test
@@ -63,9 +62,17 @@ class ItemRequestRepositoryTest {
         assertEquals(request1, actualList.get(1));
     }
 
-    @AfterEach
-    public void tearDown() {
-        userRepository.deleteAll(List.of(requestor, notRequestor));
-        requestRepository.deleteAll(List.of(request1, request2, request3));
+    @Test
+    void findAllByRequestorOrderByCreatedDesc_whenInvokedWithUnknownRequestor_thenReturnEmptyList() {
+        User userForTest = User.builder()
+                .id(3L)
+                .name("AnyName")
+                .email("any@email.com")
+                .build();
+
+        List<ItemRequest> actualList = new ArrayList<>(requestRepository.findAllByRequestorOrderByCreatedDesc(userForTest));
+
+        System.out.println(actualList);
+        assertTrue(actualList.isEmpty());
     }
 }

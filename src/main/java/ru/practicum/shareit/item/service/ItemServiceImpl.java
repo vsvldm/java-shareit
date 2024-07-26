@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.exception.BadRequestException;
+import ru.practicum.shareit.exception.exception.ForbiddenException;
 import ru.practicum.shareit.exception.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -51,11 +52,17 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: Beginning of method execution create().");
         log.info("create(): Checking the existence of a user with id = {} creating the item.", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> {
+                    log.error("create(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         log.info("create(): Checking the existence of a item request.");
         ItemRequest itemRequest = (itemDto.getRequestId() != null) ? itemRequestRepository.findById(itemDto.getRequestId())
-                .orElseThrow(() -> new NotFoundException("Request not found.")) : null;
+                .orElseThrow(() -> {
+                    log.error("create(): ItemRequest with id = {} not found", itemDto.getRequestId());
+                    return new NotFoundException(String.format("ItemRequest with id = %d not found", itemDto.getRequestId()));
+                }) : null;
 
         log.info("crate(): Add the item to the database.");
         Item item = itemRepository.save(itemMapper.fromItemDto(user, itemDto, itemRequest));
@@ -75,13 +82,15 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(long userId, long itemId, ItemDto itemDto) {
         log.info("ItemService: Beginning of method execution update().");
         log.info("update(): Checking the existence of an item with id = {}.", itemId);
-        Item existingItem = itemRepository.findById(itemId).orElseThrow(
-                () -> new NotFoundException(String.format("Item with id = %d not found.", itemId))
-        );
+        Item existingItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    log.error("update(): Item with id = {} not found", itemId);
+                    return new NotFoundException(String.format("Item with id = %d not found", itemId));
+                });
 
-        log.info("update(): Checking the existence of an item with id = {} for a user with id = {}.", existingItem.getId(), userId);
+        log.info("update(): Checking access for a user with id = {} to update an item with id = {} .", existingItem.getId(), userId);
         if (existingItem.getOwner().getId() == userId) {
-            log.info("update(): Searching and updating information in the database.");
+            log.info("update(): Updating information in the database.");
             if (itemDto.getName() != null) {
                 existingItem.setName(itemDto.getName());
             }
@@ -97,8 +106,9 @@ public class ItemServiceImpl implements ItemService {
             log.info("update(): Item with id = {} successfully updated in database.", updatedItem.getId());
             return itemMapper.toItemDto(updatedItem);
         } else {
-            throw new NotFoundException(
-                    String.format("User with id = %d did not create an item with id = %d not found.", userId, itemId)
+            log.error("update(): User with id = {} does not have access to the Item with id = {}.", userId, itemId);
+            throw new ForbiddenException(
+                    String.format("User with id = %d does not have access to the Item with id = %d.", userId, itemId)
             );
         }
     }
@@ -106,13 +116,19 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ReturnItemDto findById(long userId, long itemId) {
         log.info("ItemService: Beginning of method execution findById().");
-
         log.info("findById(): Checking the existence of a user with id = {}.", userId);
-        User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("findById(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         log.info("findById(): Searching item with id = {}.", itemId);
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new NotFoundException(String.format("Item with id = %d not found.", itemId)));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> {
+                    log.error("findById(): Item with id = {} not found", itemId);
+                    return new NotFoundException(String.format("Item with id = %d not found", itemId));
+                });
 
         log.info("findById(): Searching comments for item with id = {}.", itemId);
         List<CommentDto> comments = commentRepository.findByItem(item).stream()
@@ -131,7 +147,7 @@ public class ItemServiceImpl implements ItemService {
         BookingDtoForItem lastBooking = getLastBooking(item, now);
         BookingDtoForItem nextBooking = getNextBooking(item, now);
 
-        log.info("findById(): Search for item with id ={} successful completed.", itemId);
+        log.info("findById(): Search for item with id = {} successful completed.", itemId);
         return itemMapper.toReturnItemDto(item, lastBooking, nextBooking, comments);
     }
 
@@ -139,12 +155,16 @@ public class ItemServiceImpl implements ItemService {
     public List<ReturnItemDto> findByOwner(long userId, Integer from, Integer size) {
         log.info("ItemService: Beginning of method execution findByOwner()");
         log.info("findByOwner(): Checking the existence of a user with id = {}.", userId);
-        User owner = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("findByOwner(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         log.info("findByOwner(): Searching items by owner.");
         List<Item> itemsByOwner = new ArrayList<>();
 
-        if(isPaginationEnabled(from, size)) {
+        if (isPaginationEnabled(from, size)) {
             itemsByOwner.addAll(itemRepository.findAllByOwner(owner, PageRequest.of(from/size, size)).getContent());
         } else {
             itemsByOwner.addAll(itemRepository.findAllByOwner(owner));
@@ -176,17 +196,20 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: Beginning of method execution search()");
         log.info("search(): Checking the text parameter for emptiness.");
         if (text.isEmpty()) {
-            log.info("search(): Parameter is empty.");
+            log.info("search(): Parameter Text is empty.");
             return List.of();
         }
 
         userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> {
+                    log.error("search(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         List<ItemDto> searchedItems = new ArrayList<>();
 
         log.info("search(): Searching items by text parameter.");
-        if(isPaginationEnabled(from, size)) {
+        if (isPaginationEnabled(from, size)) {
             searchedItems.addAll(itemRepository.findAllByNameOrDescription(text, PageRequest.of(from/size, size)).stream()
                     .map(itemMapper::toItemDto)
                     .collect(Collectors.toList()));
@@ -206,14 +229,23 @@ public class ItemServiceImpl implements ItemService {
         log.info("ItemService: Beginning of method execution createComment()");
         log.info("createComment(): Checking the existence of a user with id = {}.", userId);
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found."));
+                .orElseThrow(() -> {
+                    log.error("createComment(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
         log.info("createComment(): Checking the existence of an item with id = {}.", itemId);
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Item not found."));
+                .orElseThrow(() -> {
+                    log.error("createComment(): Item with id = {} not found", itemId);
+                    return new NotFoundException(String.format("Item with id = %d not found", itemId));
+                });
 
         log.info("createComment(): Checking the author with id = {} for the ability to create a comment.", userId);
         bookingRepository.findTop1ByItemAndBookerAndEndBefore(item, author, LocalDateTime.now())
-                .orElseThrow(() -> new BadRequestException("The author has not booking the item or the booking has not yet ended."));
+                .orElseThrow(() -> {
+                    log.error("createComment(): The author has not booking the item or the booking has not yet ended.");
+                    return new BadRequestException("The author has not booking the item or the booking has not yet ended.");
+                });
 
         log.info("createComment(): Creating a new comment for the item.");
         commentDto.setCreated(LocalDateTime.now());

@@ -122,25 +122,24 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findAll_whenNormallyInvokedWithAllParam_thenReturnListItemRequestDto() {
-        long userIdForPageble = 2L;
+        long userIdForPageable = 2L;
         Integer from = 0;
         Integer size = 10;
-
         User user = User.builder()
                 .id(2L)
                 .build();
 
-        when(userRepository.findById(userIdForPageble)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userIdForPageable)).thenReturn(Optional.of(user));
         when(requestRepository.findAll(PageRequest.of(from/size, size, Sort.by("created"))))
                 .thenReturn(new PageImpl<>(requests));
         when(requestMapper.toItemRequestDto(request)).thenReturn(requestDto);
 
-        List<ItemRequestDto> actual = requestService.findAll(userIdForPageble, from, size);
+        List<ItemRequestDto> actual = requestService.findAll(userIdForPageable, from, size);
 
         assertEquals(1, actual.size());
         assertEquals(requestDto, actual.get(0));
 
-        verify(userRepository, times(1)).findById(userIdForPageble);
+        verify(userRepository, times(1)).findById(userIdForPageable);
         verify(requestRepository, times(1)).findAll(PageRequest.of(from/size, size, Sort.by("created")));
         verify(requestMapper, times(1)).toItemRequestDto(request);
     }
