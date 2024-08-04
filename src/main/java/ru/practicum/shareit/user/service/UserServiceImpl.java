@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.exception.ConflictException;
 import ru.practicum.shareit.exception.exception.NotFoundException;
+import ru.practicum.shareit.user.dto.UpdatedUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -26,6 +28,11 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto userDto) {
         log.info("UserService: Beginning of method execution create().");
         log.info("create(): Add the user to the database.");
+
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            log.error("create(): Conflict when saving data. A user with this email already exists.");
+            throw new ConflictException("Conflict when saving data. A user with this email already exists.");
+        }
         User addedUser = userRepository.save(userMapper.fromUserDto(userDto));
 
         log.info("crate(): User with id = {} successfully added to database.", addedUser.getId());
@@ -34,24 +41,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto update(long userId, UserDto userDto) {
+    public UserDto update(long userId, UpdatedUserDto updatedUserDto) {
         log.info("UserService: Beginning of method execution update().");
         log.info("update(): Checking the existence of a user with id = {}.", userId);
-        User existingUser = userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException(String.format("User with id = %s not found", userId))
-        );
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("update(): User with id = {} not found", userId);
+                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                });
 
         log.info("update(): Searching and updating information in the database.");
-        if (userDto.getName() != null) {
-            existingUser.setName(userDto.getName());
+        if (updatedUserDto.getName() != null) {
+            existingUser.setName(updatedUserDto.getName());
+            log.info("update(): Update UserName with id = {}", userId );
         }
-        if (userDto.getEmail() != null) {
-            existingUser.setEmail(userDto.getEmail());
+        if (updatedUserDto.getEmail() != null) {
+            if (userRepository.existsByEmail(updatedUserDto.getEmail())) {
+                log.error("update(): Conflict when updating data. A user with this email already exists.");
+                throw new ConflictException("Conflict when updating data. A user with this email already exists.");
+            }
+            existingUser.setEmail(updatedUserDto.getEmail());
+            log.info("update(): Update UserEmail with id = {}", userId );
         }
-        User updatedUser = userRepository.save(existingUser);
+            User updatedUser = userRepository.save(existingUser);
 
-        log.info("update(): User with id = {} successfully updated in database.", updatedUser.getId());
-        return userMapper.toUserDto(updatedUser);
+            log.info("update(): User with id = {} successfully updated in database.", updatedUser.getId());
+            return userMapper.toUserDto(updatedUser);
     }
 
     @Override

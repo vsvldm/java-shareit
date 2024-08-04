@@ -71,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("statusUpdate(): Checking the existence of the owner with id = {}.", userId);
         User owner = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id = %d not found.", userId)));
+                .orElseThrow(() -> new BadRequestException(String.format("User with id = %d does not exist.", userId)));
         log.info("statusUpdate(): Checking the existence of the booking with id = {}.", bookingId);
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException(String.format("Booking with id = %d not found.", bookingId)));
