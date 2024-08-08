@@ -72,7 +72,6 @@ class ItemRequestRepositoryTest {
 
         List<ItemRequest> actualList = new ArrayList<>(requestRepository.findAllByRequestorOrderByCreatedDesc(userForTest));
 
-        System.out.println(actualList);
         assertTrue(actualList.isEmpty());
     }
 }

@@ -58,10 +58,11 @@ class UserServiceImplTest {
 
     @Test
     void create_whenCreatingWithExistingEmail_thenReturnConflictException() {
-        when(userMapper.fromUserDto(userDto)).thenReturn(user);
-        when(userRepository.save(user)).thenThrow(new RuntimeException());
+        when(userRepository.existsByEmail(userDto.getEmail())).thenReturn(true);
 
         assertThrows(ConflictException.class, () -> userService.create(userDto));
+
+        verify(userRepository, never()).save(user);
     }
 
     @Test
@@ -181,9 +182,11 @@ class UserServiceImplTest {
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(updatedUser)).thenThrow(new RuntimeException());
+        when(userRepository.existsByEmail(updatedUserDto.getEmail())).thenReturn(true);
 
         assertThrows(ConflictException.class, () -> userService.update(userId, updatedUserDto));
+
+        verify(userRepository, never()).save(updatedUser);
     }
 
     @Test

@@ -79,13 +79,13 @@ public class BookingServiceImpl implements BookingService {
         log.info("statusUpdate(): Checking the existence of the owner with id = {}.", userId);
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    log.error("statusUpdate(): User with id = {} not found", userId);
-                    return new NotFoundException(String.format("User with id = %d not found", userId));
+                    log.error("statusUpdate(): User with id = {} does not exist.", userId);
+                    return new BadRequestException(String.format("User with id = %d does not exist.", userId));
                 });
         log.info("statusUpdate(): Checking the existence of the booking with id = {}.", bookingId);
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> {
-                    log.error("statusUpdate(): Booking with id = {} not found", bookingId);
+                    log.error("statusUpdate(): Booking with id = {} not found.", bookingId);
                     return new NotFoundException(String.format("Booking with id = %d not found.", bookingId));
                 });
 

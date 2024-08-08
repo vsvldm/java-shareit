@@ -28,15 +28,15 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto userDto) {
         log.info("UserService: Beginning of method execution create().");
         log.info("create(): Add the user to the database.");
-        try {
-            User addedUser = userRepository.save(userMapper.fromUserDto(userDto));
 
-            log.info("crate(): User with id = {} successfully added to database.", addedUser.getId());
-            return userMapper.toUserDto(addedUser);
-        } catch (RuntimeException e) {
+        if (userRepository.existsByEmail(userDto.getEmail())) {
             log.error("create(): Conflict when saving data. A user with this email already exists.");
             throw new ConflictException("Conflict when saving data. A user with this email already exists.");
         }
+        User addedUser = userRepository.save(userMapper.fromUserDto(userDto));
+
+        log.info("crate(): User with id = {} successfully added to database.", addedUser.getId());
+        return userMapper.toUserDto(addedUser);
     }
 
     @Override
@@ -56,20 +56,17 @@ public class UserServiceImpl implements UserService {
             log.info("update(): Update UserName with id = {}", userId );
         }
         if (updatedUserDto.getEmail() != null) {
+            if (userRepository.existsByEmail(updatedUserDto.getEmail())) {
+                log.error("update(): Conflict when saving data. A user with this email already exists.");
+                throw new ConflictException("Conflict when saving data. A user with this email already exists.");
+            }
             existingUser.setEmail(updatedUserDto.getEmail());
             log.info("update(): Update UserEmail with id = {}", userId );
         }
+        User updatedUser = userRepository.save(existingUser);
 
-        try {
-            User updatedUser = userRepository.save(existingUser);
-
-            log.info("update(): User with id = {} successfully updated in database.", updatedUser.getId());
-            return userMapper.toUserDto(updatedUser);
-        } catch (RuntimeException e){
-            log.error("update(): Conflict when saving data. A user with this email already exists.");
-            throw new ConflictException("Conflict when saving data. A user with this email already exists.");
-        }
-
+        log.info("update(): User with id = {} successfully updated in database.", updatedUser.getId());
+        return userMapper.toUserDto(updatedUser);
     }
 
     @Override
