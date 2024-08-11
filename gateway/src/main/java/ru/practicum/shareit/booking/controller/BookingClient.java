@@ -54,7 +54,7 @@ public class BookingClient extends BaseClient {
         }
 
         if (from != null) {
-            if(url.length() > 0) {
+            if (url.length() > 0) {
                 url.append("&from={from}");
             } else {
                 url.append("?from={from}");

@@ -10,8 +10,6 @@ import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.user.dto.UpdatedUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import java.util.List;
-
 @Service
 public class UserClient extends BaseClient {
     private static final String API_PREFIX = "/users";
