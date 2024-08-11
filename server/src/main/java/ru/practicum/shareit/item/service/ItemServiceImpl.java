@@ -165,7 +165,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> itemsByOwner = new ArrayList<>();
 
         if (isPaginationEnabled(from, size)) {
-            itemsByOwner.addAll(itemRepository.findAllByOwner(owner, PageRequest.of(from/size, size)).getContent());
+            itemsByOwner.addAll(itemRepository.findAllByOwner(owner, PageRequest.of(from / size, size)).getContent());
         } else {
             itemsByOwner.addAll(itemRepository.findAllByOwner(owner));
         }
@@ -210,7 +210,7 @@ public class ItemServiceImpl implements ItemService {
 
         log.info("search(): Searching items by text parameter.");
         if (isPaginationEnabled(from, size)) {
-            searchedItems.addAll(itemRepository.findAllByNameOrDescription(text, PageRequest.of(from/size, size)).stream()
+            searchedItems.addAll(itemRepository.findAllByNameOrDescription(text, PageRequest.of(from / size, size)).stream()
                     .map(itemMapper::toItemDto)
                     .collect(Collectors.toList()));
         } else {

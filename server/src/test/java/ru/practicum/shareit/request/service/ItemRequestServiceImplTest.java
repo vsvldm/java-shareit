@@ -130,7 +130,7 @@ class ItemRequestServiceImplTest {
                 .build();
 
         when(userRepository.findById(userIdForPageable)).thenReturn(Optional.of(user));
-        when(requestRepository.findAll(PageRequest.of(from/size, size, Sort.by("created"))))
+        when(requestRepository.findAll(PageRequest.of(from / size, size, Sort.by("created"))))
                 .thenReturn(new PageImpl<>(requests));
         when(requestMapper.toItemRequestDto(request)).thenReturn(requestDto);
 
@@ -140,7 +140,7 @@ class ItemRequestServiceImplTest {
         assertEquals(requestDto, actual.get(0));
 
         verify(userRepository, times(1)).findById(userIdForPageable);
-        verify(requestRepository, times(1)).findAll(PageRequest.of(from/size, size, Sort.by("created")));
+        verify(requestRepository, times(1)).findAll(PageRequest.of(from / size, size, Sort.by("created")));
         verify(requestMapper, times(1)).toItemRequestDto(request);
     }
 
@@ -160,14 +160,14 @@ class ItemRequestServiceImplTest {
 
     @Test
     void findAll_whenInvokedWithFailFromParam_thenReturnBadRequestException() {
-        assertThrows(BadRequestException.class, () ->requestService.findAll(userId, -1, 10));
+        assertThrows(BadRequestException.class, () -> requestService.findAll(userId, -1, 10));
 
         verify(userRepository, never()).findById(userId);
     }
 
     @Test
     void findAll_whenInvokedWithFailSizeParam_thenReturnBadRequestException() {
-        assertThrows(BadRequestException.class, () ->requestService.findAll(userId, 0, 0));
+        assertThrows(BadRequestException.class, () -> requestService.findAll(userId, 0, 0));
 
         verify(userRepository, never()).findById(userId);
     }
@@ -176,7 +176,7 @@ class ItemRequestServiceImplTest {
     void findAll_whenInvokedWithUnknownUser_thenReturnNotFoundException() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () ->requestService.findAll(userId, 0, 10));
+        assertThrows(NotFoundException.class, () -> requestService.findAll(userId, 0, 10));
 
         verify(userRepository, times(1)).findById(userId);
         verify(requestMapper, never()).toItemRequestDto(request);
@@ -200,7 +200,7 @@ class ItemRequestServiceImplTest {
     void findById_whenInvokedWithUnknownUser_thenReturnNotFoundException() {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () ->requestService.findById(userId, requestId));
+        assertThrows(NotFoundException.class, () -> requestService.findById(userId, requestId));
 
         verify(userRepository, times(1)).findById(userId);
         verify(requestRepository, never()).findById(requestId);
@@ -211,7 +211,7 @@ class ItemRequestServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(requestor));
         when(requestRepository.findById(requestId)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () ->requestService.findById(userId, requestId));
+        assertThrows(NotFoundException.class, () -> requestService.findById(userId, requestId));
 
         verify(userRepository, times(1)).findById(userId);
         verify(requestRepository, times(1)).findById(requestId);

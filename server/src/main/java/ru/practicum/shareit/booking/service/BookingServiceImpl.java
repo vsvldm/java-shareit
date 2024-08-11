@@ -155,8 +155,8 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case ALL:
                 log.info("findAllByBookerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByBookerOrderByStartDesc(booker, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerOrderByStartDesc(booker, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -167,8 +167,8 @@ public class BookingServiceImpl implements BookingService {
 
             case CURRENT:
                 log.info("findAllByBookerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllCurrentByBooker(booker, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllCurrentByBooker(booker, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -179,8 +179,8 @@ public class BookingServiceImpl implements BookingService {
 
             case PAST:
                 log.info("findAllByBookerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByBookerAndEndBeforeOrderByStartDesc(booker, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndEndBeforeOrderByStartDesc(booker, LocalDateTime.now(), PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -191,8 +191,8 @@ public class BookingServiceImpl implements BookingService {
 
             case FUTURE:
                 log.info("findAllByBookerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByBookerAndStartAfterOrderByStartDesc(booker, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndStartAfterOrderByStartDesc(booker, LocalDateTime.now(), PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -203,8 +203,8 @@ public class BookingServiceImpl implements BookingService {
 
             case WAITING:
                 log.info("findAllByBookerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.WAITING, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.WAITING, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -215,8 +215,8 @@ public class BookingServiceImpl implements BookingService {
 
             case REJECTED:
                 log.info("findAllByBookerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.REJECTED, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByBookerAndStatusOrderByStartDesc(booker, BookingStatus.REJECTED, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -252,7 +252,7 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 log.info("findAllByBookerId(): Searching successfully completed.");
                 if (isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByItemOwnerOrderByStartDesc(owner, PageRequest.of(from/size, size)).stream()
+                    return bookingRepository.findAllByItemOwnerOrderByStartDesc(owner, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -263,8 +263,8 @@ public class BookingServiceImpl implements BookingService {
 
             case CURRENT:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllCurrentByOwner(owner, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllCurrentByOwner(owner, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -275,8 +275,8 @@ public class BookingServiceImpl implements BookingService {
 
             case PAST:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(owner, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(owner, LocalDateTime.now(), PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -287,8 +287,8 @@ public class BookingServiceImpl implements BookingService {
 
             case FUTURE:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByItemOwnerAndStartAfterOrderByStartDesc(owner, LocalDateTime.now(), PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndStartAfterOrderByStartDesc(owner, LocalDateTime.now(), PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -299,8 +299,8 @@ public class BookingServiceImpl implements BookingService {
 
             case WAITING:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.WAITING, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.WAITING, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }
@@ -311,8 +311,8 @@ public class BookingServiceImpl implements BookingService {
 
             case REJECTED:
                 log.info("findAllByOwnerId(): Searching successfully completed.");
-                if(isPaginationEnabled(from, size)) {
-                    return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED, PageRequest.of(from/size, size)).stream()
+                if (isPaginationEnabled(from, size)) {
+                    return bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(owner, BookingStatus.REJECTED, PageRequest.of(from / size, size)).stream()
                             .map(bookingMapper::toReturnBookingDto)
                             .collect(Collectors.toList());
                 }

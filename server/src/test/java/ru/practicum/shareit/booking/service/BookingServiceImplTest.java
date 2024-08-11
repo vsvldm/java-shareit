@@ -492,7 +492,7 @@ class BookingServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(bookingRepository.findAllByBookerAndEndBeforeOrderByStartDesc(any(), any(), any()))
-                .thenReturn(new PageImpl<> (Collections.singletonList(bookingForTest)));
+                .thenReturn(new PageImpl<>(Collections.singletonList(bookingForTest)));
         when(bookingMapper.toReturnBookingDto(bookingForTest)).thenReturn(returnBookingDtoForTest);
 
         List<ReturnBookingDto> actual = bookingService.findAllByBookerId(userId, BookingState.PAST, from, size);
@@ -566,7 +566,7 @@ class BookingServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(bookingRepository.findAllByBookerAndStartAfterOrderByStartDesc(any(), any(), any()))
-                .thenReturn( new PageImpl<>(Collections.singletonList(bookingForTest)));
+                .thenReturn(new PageImpl<>(Collections.singletonList(bookingForTest)));
         when(bookingMapper.toReturnBookingDto(bookingForTest)).thenReturn(returnBookingDtoForTest);
 
         List<ReturnBookingDto> actual = bookingService.findAllByBookerId(userId, BookingState.FUTURE, from, size);
@@ -741,7 +741,7 @@ class BookingServiceImplTest {
         verify(bookingRepository, never()).findAllByBookerAndStartAfterOrderByStartDesc(any(),any());
         verify(bookingRepository, never()).findAllByBookerAndStartAfterOrderByStartDesc(any(),any(), any());
         verify(bookingRepository, never()).findAllByBookerAndStatusOrderByStartDesc(any(),any());
-        verify(bookingRepository, never()).findAllByBookerAndStatusOrderByStartDesc(user,BookingStatus.WAITING, PageRequest.of(from/size, size));
+        verify(bookingRepository, never()).findAllByBookerAndStatusOrderByStartDesc(user,BookingStatus.WAITING, PageRequest.of(from / size, size));
     }
 
     @Test

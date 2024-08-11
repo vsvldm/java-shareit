@@ -98,7 +98,7 @@ class ItemControllerTest {
                 .thenReturn(itemNameUpdated);
 
         mvc.perform(patch("/items/{itemId}", itemId)
-                        .content(mapper.writeValueAsString(itemNameUpdated ))
+                        .content(mapper.writeValueAsString(itemNameUpdated))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -127,7 +127,7 @@ class ItemControllerTest {
                 .thenReturn(itemUpdatedDescription);
 
         mvc.perform(patch("/items/{itemId}", itemId)
-                        .content(mapper.writeValueAsString(itemUpdatedDescription ))
+                        .content(mapper.writeValueAsString(itemUpdatedDescription))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -156,7 +156,7 @@ class ItemControllerTest {
                 .thenReturn(itemAvailableUpdated);
 
         mvc.perform(patch("/items/{itemId}", itemId)
-                        .content(mapper.writeValueAsString(itemAvailableUpdated ))
+                        .content(mapper.writeValueAsString(itemAvailableUpdated))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)

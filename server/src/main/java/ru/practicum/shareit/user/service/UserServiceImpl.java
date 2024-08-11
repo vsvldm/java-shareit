@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         log.info("update(): Searching and updating information in the database.");
         if (updatedUserDto.getName() != null) {
             existingUser.setName(updatedUserDto.getName());
-            log.info("update(): Update UserName with id = {}", userId );
+            log.info("update(): Update UserName with id = {}", userId);
         }
         if (updatedUserDto.getEmail() != null) {
             if (userRepository.existsByEmail(updatedUserDto.getEmail())) {
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
                 throw new ConflictException("Conflict when saving data. A user with this email already exists.");
             }
             existingUser.setEmail(updatedUserDto.getEmail());
-            log.info("update(): Update UserEmail with id = {}", userId );
+            log.info("update(): Update UserEmail with id = {}", userId);
         }
         User updatedUser = userRepository.save(existingUser);
 
