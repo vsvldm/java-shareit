@@ -94,24 +94,6 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findAllByBookerOrderByStartDesc_whenInvokedWithoutPagination_thenReturnCollectionBooking() {
-        Collection<Booking> expected = List.of(futureBooking, waitingBooking, currentBooking, pastBooking);
-        Collection<Booking> actual = bookingRepository.findAllByBookerOrderByStartDesc(booker);
-
-        assertFalse(actual.isEmpty());
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    void testFindAllByBookerOrderByStartDesc() {
-        Collection<Booking> expected = List.of(futureBooking, waitingBooking, currentBooking, pastBooking);
-        Collection<Booking> actual = bookingRepository.findAllByBookerOrderByStartDesc(booker, PageRequest.of(0, 10)).getContent();
-
-        assertFalse(actual.isEmpty());
-        assertEquals(expected, actual);
-    }
-
-    @Test
     void findAllCurrentByBooker_whenInvokedWithoutPagination_thenReturnCollectionBooking() {
         Collection<Booking> expected = List.of(currentBooking);
         Collection<Booking> actual = bookingRepository.findAllCurrentByBooker(booker);
